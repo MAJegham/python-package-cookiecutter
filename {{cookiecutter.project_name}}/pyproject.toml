@@ -1,0 +1,72 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "{{cookiecutter.project_name}}"
+keywords = ["template", "native"]
+description = "{{cookiecutter.project_short_description}}"
+authors = [
+    {name = "{{cookiecutter.full_name}}", email = "{{cookiecutter.email}}"},
+]
+{%- set license_classifiers = {
+    'MIT license': 'License :: OSI Approved :: MIT License',
+    'BSD license': 'License :: OSI Approved :: BSD License',
+    'ISC license': 'License :: OSI Approved :: ISC License (ISCL)',
+    'Apache Software License 2.0': 'License :: OSI Approved :: Apache Software License',
+    'GNU General Public License v3': 'License :: OSI Approved :: GNU General Public License v3 (GPLv3)'
+} %}
+license = {file = "LICENSE.md"}
+dynamic = ["version", "readme"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+{%- if cookiecutter.license in license_classifiers %}
+    '{{ license_classifiers[cookiecutter.license] }}',
+{%- endif %}
+    'Natural Language :: English',
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+requires-python = ">=3.7"
+dependencies = []
+
+[project.optional-dependencies] # extras syntax e.g. pip install {{cookiecutter.package_name}}[dev]
+dev = [ "pylint", "pytest",
+        {%- if cookiecutter.use_cover == 'y' %} "pytest-cov", {%- endif %}
+        {%- if cookiecutter.use_black == 'y' %} "black", {%- endif %}
+        {%- if cookiecutter.use_isort == 'y' %} "isort", {%- endif %}
+        ]
+deploy = ["build", "twine"]
+
+[tool.setuptools.dynamic]
+version = {attr = "{{cookiecutter.package_name}}.__version__"}
+readme = {file = ["README.md"], content-type = "text/markdown"}
+
+[project.scripts]
+my-script = "{{cookiecutter.package_name}}._main:main_impl"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["{{cookiecutter.package_name}}*"]
+exclude = []
+namespaces = false  # to disable scanning PEP 420 namespaces (true by default)
+
+[tool.pylint.main]
+output-format = "colorized"
+[tool.pylint.MASTER]
+ignore = [".git", "__pycache__", "venv", "docs"]
+
+[tool.black]
+line-length = 120
+target-version = ['py37', 'py38', 'py39', 'py310']
+
+[tool.coverage.run]
+omit = ["*/__init__.py", "src/{{cookiecutter.package_name}}/__main__.py"] # no coverage for main entry point and __init__ files
+[tool.coverage.report]
+fail_under = 90
+
